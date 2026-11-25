@@ -1,0 +1,69 @@
+name: comfortroom
+
+services:
+  mosquitto:
+    image: docker.io/library/eclipse-mosquitto:2
+    container_name: comfortroom-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro,Z
+      - mosquitto-data:/mosquitto/data
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "127.0.0.1", "-t", "healthcheck", "-m", "ok"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  dashboard:
+    profiles: ["production"]
+    build:
+      context: .
+      target: production
+    image: localhost/cr-dashboard:latest
+    container_name: comfortroom-dashboard
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+  dashboard-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      target: dev
+    image: localhost/cr-dashboard-dev:latest
+    container_name: comfortroom-dashboard-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src:Z
+      - ./index.html:/app/index.html:Z
+      - ./vite.config.js:/app/vite.config.js:Z
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+  simulator:
+    profiles: ["dev", "simulator"]
+    build:
+      context: .
+      target: dev
+    image: localhost/cr-dashboard-dev:latest
+    container_name: comfortroom-simulator
+    command: ["npm", "run", "simulate"]
+    environment:
+      MQTT_URL: mqtt://mosquitto:1883
+      DEVICE_ID: ${DEVICE_ID:-comfortroom}
+      INTERVAL_MS: ${INTERVAL_MS:-3000}
+    volumes:
+      - ./scripts:/app/scripts:Z
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+volumes:
+  mosquitto-data:

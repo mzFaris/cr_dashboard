@@ -3,7 +3,7 @@ export const HISTORY_LIMIT = 90;
 export const ACK_TIMEOUT_MS = 6000;
 export const STALE_AFTER_S = 20;
 
-export const DEFAULT_DEVICE_ID = "comfortroom-8f2c41d6-9a3b-4e57-b0d2-6c5a7e19f408";
+export const DEFAULT_DEVICE_ID = "comfortroom";
 
 export function defaultBrokerUrl() {
   const host = typeof window !== "undefined" && window.location.hostname

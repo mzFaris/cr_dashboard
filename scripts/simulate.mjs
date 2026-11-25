@@ -4,7 +4,7 @@ import mqtt from "mqtt";
 
 const MQTT_URL = process.env.MQTT_URL || "mqtt://127.0.0.1:1883";
 const DEVICE_ID =
-  process.env.DEVICE_ID || "comfortroom-8f2c41d6-9a3b-4e57-b0d2-6c5a7e19f408";
+  process.env.DEVICE_ID || "comfortroom";
 const INTERVAL_MS = Number(process.env.INTERVAL_MS || 3000);
 
 const TEMP_THRESHOLD = Number(process.env.TEMP_THRESHOLD || 30);
